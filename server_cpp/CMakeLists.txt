@@ -36,4 +36,6 @@ add_executable(cluster ${sources}
 target_link_libraries(cluster
 	protobuf::libprotobuf
 	gRPC::grpc++_unsecure)
-add_compile_definitions(_WIN32_WINNT=0x600)
+if (MSVC)
+	add_compile_definitions(_WIN32_WINNT=0x600)
+endif()

@@ -1,15 +1,13 @@
 #pragma once
 #include <memory>
-#include "IDllLoader.h"
-#include <vector>
-#include <atomic>
-#include <thread>
+#include "IFunctionLoader.h"
+#include "DiffEqSolver.h"
 
 class MathTask
 {
 public:
-	void Start();
+	MathTask(std::unique_ptr<IFunctionLoader>&& dll, double eps, double left, double right, double step);
 private:
-	std::unique_ptr<IDllLoader> m_dll;
-	std::vector<std::atomic<double>> m_volatilePoints;
+	std::unique_ptr<IFunctionLoader> m_dll;
+	DiffEqSolver m_solver;
 };

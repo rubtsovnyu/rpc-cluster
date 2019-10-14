@@ -3,6 +3,6 @@
 class IOutputStream
 {
 public:
-	virtual void operator<<(double value) = 0;
+	virtual IOutputStream& operator<<(const double value) = 0;
 	virtual ~IOutputStream() = default;
 };

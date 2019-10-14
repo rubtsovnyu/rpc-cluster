@@ -26,7 +26,7 @@ add_custom_command(
         "${hw_proto}"
       DEPENDS "${hw_proto}")
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}")
 
 file(GLOB sources ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
 

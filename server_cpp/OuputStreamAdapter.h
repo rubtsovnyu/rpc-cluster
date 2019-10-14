@@ -6,9 +6,10 @@ class OutputStreamAdapter : public IOutputStream
 {
 public:
 	OutputStreamAdapter(std::ostream& stream) : m_stream(stream){}
-	void operator<<(double value) override
+	OutputStreamAdapter& operator<<(double value) override
 	{
 		m_stream << value;
+		return *this;
 	}
 private:
 	std::ostream& m_stream;

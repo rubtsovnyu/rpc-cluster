@@ -26,13 +26,16 @@ add_custom_command(
         "${hw_proto}"
       DEPENDS "${hw_proto}")
 
-include_directories("${PROJECT_SOURCE_DIR}")
+include_directories(${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR})
 
-file(GLOB sources ${PROJECT_SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/*.h)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(cluster ${sources}
+	${hw_proto}
 	${hw_proto_srcs}
-	${hw_grpc_srcs})
+	${hw_proto_hdrs}
+	${hw_grpc_srcs}
+	${hw_grpc_hdrs})
 target_link_libraries(cluster
 	protobuf::libprotobuf
 	gRPC::grpc++_unsecure)

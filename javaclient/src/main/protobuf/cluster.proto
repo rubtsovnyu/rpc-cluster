@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.cluster";
+option java_outer_classname = "Cluster";
+option objc_class_prefix = "CTR";
+
+package cluster;
+
+service Control {
+    rpc StartTask (RunMessage) returns (stream OutputPointsStream) {
+    }
+    rpc SuspendTask (Empty) returns (Points) {
+    }
+    rpc ReadCurrentPoints (Empty) returns (Points) {
+    }
+    rpc ResumeTask (Empty) returns (Empty) {
+    }
+    rpc TerminateTask (Empty) returns (Points) {
+    }
+}
+
+message Empty {
+}
+
+message RunMessage {
+    string FunctionName = 1;
+    repeated double Params = 2;
+}
+
+message OutputPointsStream {
+    double value = 1;
+}
+
+message Points {
+    repeated double value = 1;
+}

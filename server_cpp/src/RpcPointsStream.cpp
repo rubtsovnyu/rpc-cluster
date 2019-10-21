@@ -8,6 +8,7 @@ RpcPointsStream::RpcPointsStream()
 IOutputStream& RpcPointsStream::operator<<(const double value)
 {
 	m_buffer.push(value);
+	m_event.notify_one();
 	return *this;
 }
 
@@ -24,6 +25,15 @@ bool RpcPointsStream::IsClosed() const
 bool RpcPointsStream::Empty() const
 {
 	return m_buffer.empty();
+}
+
+void RpcPointsStream::WaitIfEmpty()
+{
+	if (!Empty())
+		return;
+	std::mutex mutex;
+	std::unique_lock<std::mutex> lock(mutex);
+	m_event.wait(lock);
 }
 
 double RpcPointsStream::Pop()

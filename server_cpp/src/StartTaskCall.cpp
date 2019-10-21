@@ -28,8 +28,10 @@ void StartTaskCall::Proceed()
 	{
 		m_isFinished = true;
 		m_responder.Finish(grpc::Status::OK, this);
+		return;
 	}
 	cluster::OutputPointsStream reply;
+	m_pointsStream.WaitIfEmpty();
 	reply.set_value(m_pointsStream.Pop());
 	m_responder.Write(reply, this);
 }

@@ -7,6 +7,8 @@ import io.grpc.cluster.RunMessage;
 import org.knowm.xchart.QuickChart;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
@@ -19,7 +21,7 @@ import java.util.Iterator;
 public class OptionsWindow extends JFrame {
     private static final Dimension textFieldDimension = new Dimension(500, 30);
     private static final Dimension tableDimension = new Dimension(500, 300);
-//    private final Logger log =
+    private final Logger log = LoggerFactory.getLogger(OptionsWindow.class);
 
     private final ControlGrpc.ControlBlockingStub controlServiceStub;
     private final MathTaskThread mathTaskThread;
@@ -168,9 +170,9 @@ public class OptionsWindow extends JFrame {
                 .build();
 
         try {
-//            log.info("Enter to start task");
+            log.info("Enter to start task");
             Iterator<OutputPointsStream> outputPointsStreamIterator = controlServiceStub.startTask(runMessage);
-//            log.info("Iterator got");
+            log.info("Iterator got");
 
             //FOR TESTING !!!!
 //            final var list = new ArrayList<Double>();
@@ -216,7 +218,7 @@ public class OptionsWindow extends JFrame {
                 });
             }
         } catch (StatusRuntimeException e) {
-//            log.warn("RPC failed: {}", e.getStatus());
+            log.warn("RPC failed: {}", e.getStatus());
             return;
         }
     }

@@ -2,15 +2,15 @@
 #include <thread>
 
 void StubTaskManager::NewTask(IOutputStream* stream, const std::string& functionName,
-	std::initializer_list<double>&& arguments)
+	const double* arguments)
 {
-	m_t = *(arguments.begin()+1);
+	m_t = arguments[1];
 	std::thread([this](IOutputStream* stream, double sleep, double end, double step)
 	{
 		const int numSteps = floor((end - m_t) / step);
 		for (int i = 0; i < numSteps; ++i)
 		{
-			m_x = sin(m_t);
+			m_x = cos(m_t);
 			(*stream) << m_t << m_x;
 			m_t = m_t + step;
 			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleep)));
@@ -30,7 +30,7 @@ void StubTaskManager::NewTask(IOutputStream* stream, const std::string& function
 			}
 		}
 		stream->CloseStream();
-	}, stream, *arguments.begin(), *(arguments.begin() + 2), *(arguments.begin() + 3)).detach();
+	}, stream, arguments[0], arguments[2], arguments[3]).detach();
 }
 
 std::vector<double>&& StubTaskManager::SuspendCurrentTask()

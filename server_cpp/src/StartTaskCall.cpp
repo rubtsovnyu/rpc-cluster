@@ -15,9 +15,7 @@ void StartTaskCall::Proceed()
 	{
 		m_isFirstCall = false;
 		new StartTaskCall(m_service, m_completionQueue, m_taskManager);
-		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), 
-			std::initializer_list<double>(m_request.arguments().data(), 
-				m_request.arguments().data() + m_request.arguments().size()));
+		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), m_request.arguments().data());
 	}
 	if (m_isFinished)
 	{

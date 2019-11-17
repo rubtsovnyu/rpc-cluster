@@ -8,7 +8,7 @@ class ITaskManager
 {
 public:
 	virtual void NewTask(IOutputStream* stream, 
-		const std::string& functionName, std::initializer_list<double>&& arguments) = 0;
+		const std::string& functionName, const double* arguments) = 0;
 	virtual std::vector<double>&& SuspendCurrentTask() = 0;
 	virtual std::vector<double>&& ReadCurrentPoints() = 0;
 	virtual void ResumeCurrentTask() = 0;

@@ -2,10 +2,13 @@ package gui;
 
 import io.grpc.StatusRuntimeException;
 import io.grpc.cluster.ControlGrpc;
+import io.grpc.cluster.Empty;
 import io.grpc.cluster.OutputPointsStream;
+import io.grpc.cluster.Points;
 import io.grpc.cluster.RunMessage;
+import io.grpc.stub.StreamObserver;
 import org.knowm.xchart.QuickChart;
-import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,17 +16,18 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class OptionsWindow extends JFrame {
     private static final Dimension textFieldDimension = new Dimension(500, 30);
     private static final Dimension tableDimension = new Dimension(500, 300);
     private final Logger log = LoggerFactory.getLogger(OptionsWindow.class);
 
-    private final ControlGrpc.ControlBlockingStub controlServiceStub;
+    private final ControlGrpc.ControlStub controlServiceStub;
     private final MathTaskThread mathTaskThread;
     private JTable paramTable;
     private JScrollPane paramTableScrollPane;
@@ -36,7 +40,7 @@ public class OptionsWindow extends JFrame {
     private InitParamPanelWrapper endXPanel;
     private InitParamPanelWrapper stepPanel;
 
-    public OptionsWindow(ControlGrpc.ControlBlockingStub controlServiceStub) throws HeadlessException {
+    public OptionsWindow(ControlGrpc.ControlStub controlServiceStub) throws HeadlessException {
         super("Параметры функции");
         this.controlServiceStub = controlServiceStub;
         this.mathTaskThread = new MathTaskThread();
@@ -112,32 +116,66 @@ public class OptionsWindow extends JFrame {
         serverButtonsPanel.add(stopServerBtn);
         contentPane.add(serverButtonsPanel);
 
-        paramNumberSetBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    paramCount = Integer.parseInt(paramNumberField.getText());
-                } catch (NumberFormatException ex) {
-                    showErrorDialog("Неверное количество параметров");
-                    return;
-                }
-                paramNumberField.setEditable(false);
-                if (paramTableScrollPane != null) {
-                    paramTablePanel.remove(paramTableScrollPane);
-                }
-                paramTableScrollPane = updateParams(paramCount);
-                paramTable = (JTable) paramTableScrollPane.getViewport().getView();
-                paramTablePanel.add(paramTableScrollPane);
-                validate();
-                repaint();
+        paramNumberSetBtn.addActionListener(e -> {
+            try {
+                paramCount = Integer.parseInt(paramNumberField.getText());
+            } catch (NumberFormatException ex) {
+                showErrorDialog("Неверное количество параметров");
+                return;
             }
+            paramNumberField.setEditable(false);
+            if (paramTableScrollPane != null) {
+                paramTablePanel.remove(paramTableScrollPane);
+            }
+            paramTableScrollPane = updateParams(paramCount);
+            paramTable = (JTable) paramTableScrollPane.getViewport().getView();
+            paramTablePanel.add(paramTableScrollPane);
+            validate();
+            repaint();
         });
 
-        startServerBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mathTaskThread.start();
-            }
+        startServerBtn.addActionListener(e -> mathTaskThread.start());
+
+        stopServerBtn.addActionListener(e -> {
+            Empty empty = Empty.newBuilder().build();
+            log.info("Stop performed!");
+            controlServiceStub.terminateTask(empty, new StreamObserver<Points>() {
+                @Override
+                public void onNext(Points points) {
+                    log.info("Last point got {}", points.toString());
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    log.error("Error during stop, {}", throwable.getMessage(), throwable);
+                }
+
+                @Override
+                public void onCompleted() {
+                    log.info("Stop completed!");
+                }
+            });
+        });
+
+        pauseServerBtn.addActionListener(e -> {
+            Empty empty = Empty.newBuilder().build();
+            log.info("Pause performed!");
+            controlServiceStub.suspendTask(empty, new StreamObserver<Points>() {
+                @Override
+                public void onNext(Points points) {
+                    log.info("Last point got {}", points.toString());
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    log.error("Error during pause, {}", throwable.getMessage(), throwable);
+                }
+
+                @Override
+                public void onCompleted() {
+                    log.info("Pause completed!");
+                }
+            });
         });
 
         setPreferredSize(new Dimension(600, 500));
@@ -170,9 +208,9 @@ public class OptionsWindow extends JFrame {
                 .build();
 
         try {
+            ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
             log.info("Enter to start task");
-            Iterator<OutputPointsStream> outputPointsStreamIterator = controlServiceStub.startTask(runMessage);
-            log.info("Iterator got");
 
             //FOR TESTING !!!!
 //            final var list = new ArrayList<Double>();
@@ -180,51 +218,122 @@ public class OptionsWindow extends JFrame {
 //            for (int i = 0; i < 100; i++) {
 //                list.add((double) random.nextInt(100) - 50);
 //            }
-//
 //            final var outputPointsStreamIterator = list.iterator();
 
-            double[] initValues = {
-                    outputPointsStreamIterator.next().getValue(),
-                    outputPointsStreamIterator.next().getValue()
-            };
+//            double[] initValues = {
+//                    outputPointsStreamIterator.next().getValue(),
+//                    outputPointsStreamIterator.next().getValue()
+//            };
 
-            final var xData = new ArrayList<Double>();
-            xData.add(initValues[0]);
-            final var yData = new ArrayList<Double>();
-            yData.add(initValues[1]);
+            final var xData = new CopyOnWriteArrayList<Double>();
+            xData.add(0.0);
+            final var yData = new CopyOnWriteArrayList<Double>();
+            yData.add(0.0);
+
+            log.info("After 2 init values sizes: {} and {}", xData.size(), yData.size());
+
+
 
             XYChart xyChart = QuickChart.getChart(functionNameFiled.getText(),
                     "x", "y", "y(x)", xData, yData);
 
-            final var sw = new SwingWrapper<XYChart>(xyChart);
-            sw.displayChart();
+            JPanel XYChartPanel = new XChartPanel<XYChart>(xyChart);
 
-            while (outputPointsStreamIterator.hasNext()) {
-                xData.add(outputPointsStreamIterator.next().getValue());
-                yData.add(outputPointsStreamIterator.next().getValue());
+            JFrame XYChartFrame = new JFrame("Chart");
+            XYChartFrame.setLayout(new BorderLayout());
+            XYChartFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            XYChartFrame.add(XYChartPanel, BorderLayout.CENTER);
 
-                //FOR TESTING
-//                synchronized (Thread.currentThread()) {
-//                    try {
-//                        Thread.currentThread().wait(500);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
+            final var sliderLabel = new JLabel("Val: ");
+            final var sliderValLabel = new JLabel("");
+            final var sliderPanel = new JPanel();
+            sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS));
+            sliderPanel.add(sliderLabel);
+            sliderPanel.add(sliderValLabel);
 
-                SwingUtilities.invokeLater(() -> {
-                    xyChart.updateXYSeries("y(x)", xData, yData, null);
-                    sw.repaintChart();
-                });
-            }
+            final var paramIter = getParamsFromFields().iterator();
+            paramIter.next();
+            final var startX = paramIter.next();
+            final var endX = paramIter.next();
+            final var step = paramIter.next();
+            final var numberOfSteps = (int) Math.round((endX - startX) / step);
+            log.info("Number of steps: {}", numberOfSteps);
+            final var chartSlider = new JSlider(JSlider.HORIZONTAL, 1, numberOfSteps, numberOfSteps);
+            chartSlider.addChangeListener(e -> {
+                JSlider jSlider = (JSlider) e.getSource();
+                final var currentZoomVal = jSlider.getValue();
+                try {
+                    xyChart.updateXYSeries("y(x)", xData.subList(0, currentZoomVal), yData.subList(0, currentZoomVal), null);
+                } catch (IndexOutOfBoundsException ex) {
+                    log.info("CurrentZoomValue: {}, Max Array Size: {} and {}", currentZoomVal, xData.size(), yData.size());
+                }
+                XYChartPanel.revalidate();
+                XYChartPanel.repaint();
+                sliderValLabel.setText("" + currentZoomVal);
+            });
+
+            sliderPanel.add(chartSlider);
+
+            sliderPanel.setVisible(true);
+
+            XYChartFrame.add(sliderPanel, BorderLayout.SOUTH);
+
+            XYChartFrame.pack();
+            XYChartFrame.setVisible(true);
+
+            final var xOrY = new AtomicBoolean(); // false = x, true = y
+
+//            final var sw = new SwingWrapper<XYChart>(xyChart);
+//            sw.displayChart();
+
+            controlServiceStub.startTask(runMessage, new StreamObserver<OutputPointsStream>() {
+                @Override
+                public void onNext(OutputPointsStream outputPointsStream) {
+                    readWriteLock.writeLock().lock();
+                    try {
+                        if (xOrY.get()) {
+                            yData.add(outputPointsStream.getValue());
+                            xOrY.set(false);
+                            try {
+                                readWriteLock.readLock().lock();
+                                try {
+                                    xyChart.updateXYSeries("y(x)", xData, yData, null);
+                                } finally {
+                                    readWriteLock.readLock().unlock();
+                                }
+                            } catch (Exception e) {
+                                log.error("xData size: {}, yData size: {}", xData.size(), yData.size(), e);
+                            }
+                            XYChartPanel.revalidate();
+                            XYChartPanel.repaint();
+                        } else {
+                            xData.add(outputPointsStream.getValue());
+                            xOrY.set(true);
+                        }
+                    } finally {
+                        readWriteLock.writeLock().unlock();
+                    }
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    log.error("gRPC error: {}", throwable.getMessage(), throwable);
+                }
+
+                @Override
+                public void onCompleted() {
+                    log.info("Stream ended! Kaef");
+                }
+            });
+
+//            sliderPanel.setVisible(true);
         } catch (StatusRuntimeException e) {
             log.warn("RPC failed: {}", e.getStatus());
-            return;
         }
     }
 
     private boolean checkValidity() {
-        boolean flag = true;
+        boolean flag;
 
         functionNameFiled.setEditable(false);
         epsPanel.getjTextField().setEditable(false);
@@ -233,7 +342,6 @@ public class OptionsWindow extends JFrame {
         stepPanel.getjTextField().setEditable(false);
 
         if (functionNameFiled.getText().isEmpty()) {
-            flag = false;
             showErrorDialog("Неверное имя функции");
             functionNameFiled.setEditable(true);
         }

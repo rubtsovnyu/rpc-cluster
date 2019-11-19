@@ -39,6 +39,12 @@
             <artifactId>xchart</artifactId>
             <version>3.6.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -65,6 +71,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>
@@ -108,7 +115,7 @@
                 <configuration>
                     <protocArtifact>com.google.protobuf:protoc:3.10.0</protocArtifact>
                     <inputDirectories>
-                        <include>src/main/protobuf</include>
+                        <include>../</include>
                     </inputDirectories>
                     <optimizeCodegen>false</optimizeCodegen>
                     <outputTargets>

@@ -21,7 +21,7 @@ public class gRPCClient {
             throw new IllegalArgumentException("Wrong server port: " + args[1]);
         }
         final var serverChannel = ManagedChannelBuilder.forAddress(serverAddress, serverPort).usePlaintext().build();
-        final var serviceStub = ControlGrpc.newBlockingStub(serverChannel);
+        final var serviceStub = ControlGrpc.newStub(serverChannel);
         SwingUtilities.invokeLater(() -> new OptionsWindow(serviceStub));
     }
 

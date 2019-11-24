@@ -19,7 +19,7 @@ message Empty{}
 
 message RunMessage {
   string function_name = 1;
-  repeated double params = 2;
+  repeated double param = 2;
 }
 
 message Point {
@@ -29,5 +29,5 @@ message Point {
 }
 
 message PointBatch {
-  repeated Point points = 1;
+  repeated Point point = 1;
 }

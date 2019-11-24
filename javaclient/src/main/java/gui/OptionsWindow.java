@@ -1,10 +1,10 @@
 package gui;
 
 import io.grpc.StatusRuntimeException;
-import io.grpc.cluster.ControlGrpc;
+import io.grpc.cluster.ControlServiceGrpc;
 import io.grpc.cluster.Empty;
-import io.grpc.cluster.OutputPointsStream;
-import io.grpc.cluster.Points;
+import io.grpc.cluster.Point;
+import io.grpc.cluster.PointBatch;
 import io.grpc.cluster.RunMessage;
 import io.grpc.stub.StreamObserver;
 import org.knowm.xchart.QuickChart;
@@ -27,7 +27,7 @@ public class OptionsWindow extends JFrame {
     private static final Dimension tableDimension = new Dimension(500, 300);
     private final Logger log = LoggerFactory.getLogger(OptionsWindow.class);
 
-    private final ControlGrpc.ControlStub controlServiceStub;
+    private final ControlServiceGrpc.ControlServiceStub controlServiceStub;
     private final MathTaskThread mathTaskThread;
     private JTable paramTable;
     private JScrollPane paramTableScrollPane;
@@ -40,7 +40,7 @@ public class OptionsWindow extends JFrame {
     private InitParamPanelWrapper endXPanel;
     private InitParamPanelWrapper stepPanel;
 
-    public OptionsWindow(ControlGrpc.ControlStub controlServiceStub) throws HeadlessException {
+    public OptionsWindow(ControlServiceGrpc.ControlServiceStub controlServiceStub) throws HeadlessException {
         super("Параметры функции");
         this.controlServiceStub = controlServiceStub;
         this.mathTaskThread = new MathTaskThread();
@@ -139,9 +139,9 @@ public class OptionsWindow extends JFrame {
         stopServerBtn.addActionListener(e -> {
             Empty empty = Empty.newBuilder().build();
             log.info("Stop performed!");
-            controlServiceStub.terminateTask(empty, new StreamObserver<Points>() {
+            controlServiceStub.terminateTask(empty, new StreamObserver<io.grpc.cluster.Point>() {
                 @Override
-                public void onNext(Points points) {
+                public void onNext(Point points) {
                     log.info("Last point got {}", points.toString());
                 }
 
@@ -160,9 +160,9 @@ public class OptionsWindow extends JFrame {
         pauseServerBtn.addActionListener(e -> {
             Empty empty = Empty.newBuilder().build();
             log.info("Pause performed!");
-            controlServiceStub.suspendTask(empty, new StreamObserver<Points>() {
+            controlServiceStub.suspendTask(empty, new StreamObserver<Point>() {
                 @Override
-                public void onNext(Points points) {
+                public void onNext(Point points) {
                     log.info("Last point got {}", points.toString());
                 }
 
@@ -238,6 +238,8 @@ public class OptionsWindow extends JFrame {
                     "x", "y", "y(x)", xData, yData);
 
             JPanel XYChartPanel = new XChartPanel<XYChart>(xyChart);
+            xData.clear();
+            yData.clear();
 
             JFrame XYChartFrame = new JFrame("Chart");
             XYChartFrame.setLayout(new BorderLayout());
@@ -286,13 +288,13 @@ public class OptionsWindow extends JFrame {
 //            final var sw = new SwingWrapper<XYChart>(xyChart);
 //            sw.displayChart();
 
-            controlServiceStub.startTask(runMessage, new StreamObserver<OutputPointsStream>() {
+            controlServiceStub.startTask(runMessage, new StreamObserver<PointBatch>() {
                 @Override
-                public void onNext(OutputPointsStream outputPointsStream) {
+                public void onNext(PointBatch pointBatch) {
                     readWriteLock.writeLock().lock();
                     try {
                         if (xOrY.get()) {
-                            yData.add(outputPointsStream.getValue());
+                            yData.add(pointBatch.getValue());
                             xOrY.set(false);
                             try {
                                 readWriteLock.readLock().lock();

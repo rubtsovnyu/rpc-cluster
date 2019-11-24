@@ -1,6 +1,6 @@
 import gui.OptionsWindow;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.cluster.ControlGrpc;
+import io.grpc.cluster.ControlServiceGrpc;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
@@ -21,7 +21,7 @@ public class gRPCClient {
             throw new IllegalArgumentException("Wrong server port: " + args[1]);
         }
         final var serverChannel = ManagedChannelBuilder.forAddress(serverAddress, serverPort).usePlaintext().build();
-        final var serviceStub = ControlGrpc.newStub(serverChannel);
+        final var serviceStub = ControlServiceGrpc.newStub(serverChannel);
         SwingUtilities.invokeLater(() -> new OptionsWindow(serviceStub));
     }
 

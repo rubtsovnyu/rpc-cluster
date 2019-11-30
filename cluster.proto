@@ -7,25 +7,27 @@ option objc_class_prefix = "CTR";
 
 package cluster;
 
-service Control {
-  rpc StartTask (RunMessage) returns (stream OutputPointsStream) {}
-	rpc SuspendTask (Empty) returns (Points) {}
-	rpc ReadCurrentPoints (Empty) returns (Points) {}
-	rpc ResumeTask (Empty) returns (Empty) {}
-	rpc TerminateTask (Empty) returns (Points) {}
+service ControlService {
+  rpc StartTask (RunMessage) returns (stream PointBatch) {}
+  rpc SuspendTask (Empty) returns (Point) {}
+  rpc ReadCurrentPoints (Empty) returns (Point) {}
+  rpc ResumeTask (Empty) returns (Empty) {}
+  rpc TerminateTask (Empty) returns (Point) {}
 }
 
 message Empty{}
 
 message RunMessage {
   string function_name = 1;
-	repeated double arguments = 2;
+  repeated double param = 2;
 }
 
-message OutputPointsStream {
-  double value = 1;
+message Point {
+  double x = 1;
+  double y = 2;
+  uint32 color = 3;
 }
 
-message Points {
-  repeated double value = 1;
+message PointBatch {
+  repeated Point point = 1;
 }

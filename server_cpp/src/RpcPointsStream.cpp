@@ -1,11 +1,12 @@
 #include "RpcPointsStream.h"
+#include "PointConverter.h"
 
 RpcPointsStream::RpcPointsStream()
 	: m_isClosed(false)
 {
 }
 
-IOutputStream& RpcPointsStream::operator<<(const double value)
+IOutputStream& RpcPointsStream::operator<<(const std::vector<Point>&& value)
 {
 	m_buffer.push(value);
 	m_event.notify_one();
@@ -36,9 +37,14 @@ void RpcPointsStream::WaitIfEmpty()
 	m_event.wait(lock);
 }
 
-double RpcPointsStream::Pop()
+cluster::PointBatch RpcPointsStream::Pop()
 {
-	const auto returnValue = m_buffer.front();
+	cluster::PointBatch batch;
+	for (const auto& point : m_buffer.front())
+	{
+		*batch.add_point() = ConvertToRpcPoint(point);
+	}
 	m_buffer.pop();
-	return returnValue;
+	return batch;
 }
+

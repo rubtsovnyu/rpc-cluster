@@ -15,7 +15,7 @@ void StartTaskCall::Proceed()
 	{
 		m_isFirstCall = false;
 		new StartTaskCall(m_service, m_completionQueue, m_taskManager);
-		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), m_request.arguments().data());
+		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), m_request.param().data());
 	}
 	if (m_isFinished)
 	{
@@ -28,8 +28,6 @@ void StartTaskCall::Proceed()
 		m_responder.Finish(grpc::Status::OK, this);
 		return;
 	}
-	cluster::OutputPointsStream reply;
 	m_pointsStream.WaitIfEmpty();
-	reply.set_value(m_pointsStream.Pop());
-	m_responder.Write(reply, this);
+	m_responder.Write(m_pointsStream.Pop(), this);
 }

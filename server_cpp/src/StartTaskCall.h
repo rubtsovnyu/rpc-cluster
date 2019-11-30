@@ -11,7 +11,7 @@ public:
 private:
 	grpc::ServerContext m_context;
 	cluster::RunMessage m_request;
-	grpc::ServerAsyncWriter<cluster::OutputPointsStream> m_responder;
+	grpc::ServerAsyncWriter<cluster::PointBatch> m_responder;
 	
 	bool m_isFinished;
 	bool m_isFirstCall;

@@ -9,10 +9,10 @@ class StubTaskManager final : public ITaskManager
 {
 public:
 	void NewTask(IOutputStream* stream, const std::string& functionName, const double* arguments) override;
-	std::vector<double>&& SuspendCurrentTask() override;
-	std::vector<double>&& ReadCurrentPoints() override;
+	Point SuspendCurrentTask() override;
+	Point ReadCurrentPoints() override;
 	void ResumeCurrentTask() override;
-	std::vector<double>&& TerminateCurrentTask() override;
+	Point TerminateCurrentTask() override;
 private:
 	enum
 	{

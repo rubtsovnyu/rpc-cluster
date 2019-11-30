@@ -11,7 +11,7 @@ void StubTaskManager::NewTask(IOutputStream* stream, const std::string& function
 		for (int i = 0; i < numSteps; ++i)
 		{
 			m_x = cos(m_t);
-			(*stream) << m_t << m_x;
+			(*stream) << std::vector<Point>{ {0, 0, 0}};
 			m_t = m_t + step;
 			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleep)));
 			switch (m_flag)
@@ -33,17 +33,15 @@ void StubTaskManager::NewTask(IOutputStream* stream, const std::string& function
 	}, stream, arguments[0], arguments[2], arguments[3]).detach();
 }
 
-std::vector<double>&& StubTaskManager::SuspendCurrentTask()
+Point StubTaskManager::SuspendCurrentTask()
 {
 	m_flag = SUSPEND;
-	std::vector<double> vec{ m_t, m_x };
-	return std::move(vec);
+	return {0,0};
 }
 
-std::vector<double>&& StubTaskManager::ReadCurrentPoints()
+Point StubTaskManager::ReadCurrentPoints()
 {
-	std::vector<double> vec{ m_t, m_x };
-	return std::move(vec);
+	return { 0,0 };
 }
 
 void StubTaskManager::ResumeCurrentTask()
@@ -52,9 +50,8 @@ void StubTaskManager::ResumeCurrentTask()
 	m_cv.notify_one();
 }
 
-std::vector<double>&& StubTaskManager::TerminateCurrentTask()
+Point StubTaskManager::TerminateCurrentTask()
 {
 	m_flag = TERMINATE;
-	std::vector<double> vec{ m_t, m_x };
-	return std::move(vec);
+	return { 0,0 };
 }

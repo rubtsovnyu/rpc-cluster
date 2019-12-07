@@ -8,7 +8,7 @@
 class StubTaskManager final : public ITaskManager
 {
 public:
-	void NewTask(IOutputStream* stream, const std::string& functionName, const double* arguments) override;
+	void NewTask(IOutputStream* stream, const std::string& functionName, boost::iterator_range<const double*> arguments) override;
 	Point SuspendCurrentTask() override;
 	Point ReadCurrentPoints() override;
 	void ResumeCurrentTask() override;

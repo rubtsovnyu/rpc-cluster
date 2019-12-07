@@ -2,7 +2,7 @@
 #include <thread>
 
 void StubTaskManager::NewTask(IOutputStream* stream, const std::string& functionName,
-	const double* arguments)
+	boost::iterator_range<const double*> arguments)
 {
 	m_t = arguments[1];
 	std::thread([this](IOutputStream* stream, double sleep, double end, double step)

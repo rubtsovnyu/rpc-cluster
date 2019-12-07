@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 project(cluster CXX)
 
-if(NOT MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-else()
+if(MSVC)
   add_definitions(-D_WIN32_WINNT=0x600)
 endif()
 
@@ -14,6 +12,8 @@ message(STATUS "Using protobuf ${protobuf_VERSION}")
 
 find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+find_package(Boost COMPONENTS filesystem REQUIRED)
 
 set(gRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
@@ -31,16 +31,11 @@ add_custom_command(
         "${hw_proto}"
       DEPENDS "${hw_proto}")
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR} ${Boost_INCLUDE_DIR})
 
 file(GLOB sources 
-    ${PROJECT_SOURCE_DIR}/src/ControlServiceImpl.cpp
-    ${PROJECT_SOURCE_DIR}/src/RpcPointsStream.cpp
-    ${PROJECT_SOURCE_DIR}/src/RpcServer.cpp
-    ${PROJECT_SOURCE_DIR}/src/StartTaskCall.cpp
-    ${PROJECT_SOURCE_DIR}/src/StubTaskManager.cpp
-    ${PROJECT_SOURCE_DIR}/src/cluster.cpp
-${PROJECT_SOURCE_DIR}/src/*.h)
+    ${PROJECT_SOURCE_DIR}/src/*.cpp
+		${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_executable(cluster ${sources}
 	${hw_proto}
@@ -50,4 +45,7 @@ add_executable(cluster ${sources}
 	${hw_grpc_hdrs})
 target_link_libraries(cluster
 	protobuf::libprotobuf
-	gRPC::grpc++_unsecure)
+	gRPC::grpc++_unsecure
+	${Boost_LIBRARIES})
+	
+set_target_properties(cluster PROPERTIES CXX_STANDARD 17)

@@ -5,7 +5,7 @@
 class IOutputStream
 {
 public:
-	virtual IOutputStream& operator<<(const std::vector<Point>&& value) = 0;
+	virtual IOutputStream& operator<<(const std::vector<Point>& value) = 0;
 	virtual void CloseStream() = 0;
 	virtual ~IOutputStream() = default;
 };

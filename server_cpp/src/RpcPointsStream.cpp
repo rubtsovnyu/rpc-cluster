@@ -6,7 +6,7 @@ RpcPointsStream::RpcPointsStream()
 {
 }
 
-IOutputStream& RpcPointsStream::operator<<(const std::vector<Point>&& value)
+IOutputStream& RpcPointsStream::operator<<(const std::vector<Point>& value)
 {
 	m_buffer.push(value);
 	m_event.notify_one();

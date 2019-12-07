@@ -1,4 +1,6 @@
 #include "StartTaskCall.h"
+#include <boost/range.hpp>
+#include "Logger.h"
 
 StartTaskCall::StartTaskCall(ClusterService* service,
 	grpc::ServerCompletionQueue* completionQueue, ITaskManager* taskManager)
@@ -6,6 +8,7 @@ StartTaskCall::StartTaskCall(ClusterService* service,
 m_service(service), m_completionQueue(completionQueue), m_taskManager(taskManager)
 {
 	m_service->RequestStartTask(&m_context, &m_request, &m_responder, m_completionQueue, m_completionQueue, this);
+	cmd::log << "Created a new StartTaskCall" << std::endl;
 }
 
 
@@ -13,19 +16,23 @@ void StartTaskCall::Proceed()
 {
 	if (m_isFirstCall)
 	{
+		cmd::log << "StartTask called" << std::endl;
 		m_isFirstCall = false;
 		new StartTaskCall(m_service, m_completionQueue, m_taskManager);
-		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), m_request.param().data());
+		m_taskManager->NewTask(&m_pointsStream, m_request.function_name(), 
+			boost::make_iterator_range(m_request.param().begin(), m_request.param().end()));
 	}
 	if (m_isFinished)
 	{
 		delete this;
+		cmd::log << "StartTask deleted" << std::endl;
 		return;
 	}
 	if (m_pointsStream.IsClosed() && m_pointsStream.Empty())
 	{
 		m_isFinished = true;
 		m_responder.Finish(grpc::Status::OK, this);
+		cmd::log << "StartTask's stream is closed" << std::endl;
 		return;
 	}
 	m_pointsStream.WaitIfEmpty();

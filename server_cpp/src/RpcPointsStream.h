@@ -10,7 +10,7 @@ class RpcPointsStream : public IOutputStream
 {
 public:
 	RpcPointsStream();
-	IOutputStream& operator<<(const std::vector<Point>&& value) override;
+	IOutputStream& operator<<(const std::vector<Point>& value) override;
 	void CloseStream() override;
 	bool IsClosed() const;
 	bool Empty() const;

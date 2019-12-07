@@ -1,5 +1,6 @@
 #include "RpcServer.h"
 #include "StartTaskCall.h"
+#include "Logger.h"
 
 RpcServer::RpcServer(std::unique_ptr<ITaskManager>&& taskManager)
 	: m_taskManager(std::move(taskManager))
@@ -15,6 +16,7 @@ void RpcServer::Run(const char* serverAddress)
 	builder.RegisterService(&m_service);
 	m_completionQueue = builder.AddCompletionQueue();
 	m_server = builder.BuildAndStart();
+	cmd::log << "Server started up" << std::endl;
 	new StartTaskCall(&m_service, m_completionQueue.get(), m_taskManager.get());
 	void* tag;
 	bool ok;

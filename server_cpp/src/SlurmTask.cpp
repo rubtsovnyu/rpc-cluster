@@ -5,8 +5,13 @@ SlurmTask::SlurmTask(IOutputStream* stream, const std::string& pathToMath, boost
 {
 	m_readHandler = [this](const boost::system::error_code& e, std::size_t size)
 	{
+		cmd::log << "ReadHandler called" << std::endl;
 		if (e.failed() || size == 0)
+		{
+			cmd::log << "Reading completed" << std::endl;
+			m_stream->CloseStream();
 			return;
+		}
 		std::istream is(&m_buffer);
 		std::string line;
 		std::getline(is, line, '\n');
@@ -29,4 +34,5 @@ SlurmTask::SlurmTask(IOutputStream* stream, const std::string& pathToMath, boost
 		oss << arguments.back();
 	}
 	m_pathToBin = pathToMath + " " + oss.str();
+	boost::trim(m_pathToBin);
 }

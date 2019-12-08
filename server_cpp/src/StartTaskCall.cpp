@@ -14,6 +14,7 @@ m_service(service), m_completionQueue(completionQueue), m_taskManager(taskManage
 
 void StartTaskCall::Proceed()
 {
+	cmd::log << "StartTask::Proceed called" << std::endl;
 	if (m_isFirstCall)
 	{
 		cmd::log << "StartTask called" << std::endl;
@@ -37,4 +38,5 @@ void StartTaskCall::Proceed()
 	}
 	m_pointsStream.WaitIfEmpty();
 	m_responder.Write(m_pointsStream.Pop(), this);
+	cmd::log << "StartTask's data is transmitted" << std::endl;
 }

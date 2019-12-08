@@ -15,13 +15,15 @@ public:
 		boost::process::child cmd(
 			boost::process::search_path(m_pathToBin),
 			boost::process::std_out > m_pipe);
+		cmd.detach();
 		cmd::log << "New task started up" << std::endl;
 		boost::asio::async_read_until(m_pipe, m_buffer, '\n', m_readHandler);
-		auto unused = std::async(std::launch::async, [this, &callback]()
+		std::thread([this, &callback]()
 		{
 			m_ioService.run();
 			callback();
-		});
+		}).detach();
+		cmd::log << "IoService started up" << std::endl;
 	}
 private:
 	boost::asio::streambuf m_buffer;

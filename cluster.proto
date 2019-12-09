@@ -9,10 +9,10 @@ package cluster;
 
 service ControlService {
   rpc StartTask (RunMessage) returns (stream PointBatch) {}
-  rpc SuspendTask (Empty) returns (Point) {}
-  rpc ReadCurrentPoints (Empty) returns (Point) {}
+  rpc SuspendTask (Empty) returns (PointBatch) {}
+  rpc ReadCurrentPoints (Empty) returns (PointBatch) {}
   rpc ResumeTask (Empty) returns (Empty) {}
-  rpc TerminateTask (Empty) returns (Point) {}
+  rpc TerminateTask (Empty) returns (PointBatch) {}
 }
 
 message Empty{}

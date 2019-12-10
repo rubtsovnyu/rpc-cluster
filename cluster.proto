@@ -25,7 +25,7 @@ message RunMessage {
 message Point {
   double x = 1;
   double y = 2;
-  uint32 color = 3;
+  double z = 3;
 }
 
 message PointBatch {

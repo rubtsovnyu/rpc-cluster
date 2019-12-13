@@ -1,4 +1,5 @@
 #include "SlurmTask.h"
+#include "SuspendResume.h"
 
 SlurmTask::SlurmTask(IOutputStream* stream, const std::string& pathToMath, boost::iterator_range<const double*> arguments)
 	: m_pipe(m_ioService), m_stream(stream)
@@ -12,17 +13,7 @@ SlurmTask::SlurmTask(IOutputStream* stream, const std::string& pathToMath, boost
 			m_stream->CloseStream();
 			return;
 		}
-		std::istream is(&m_buffer);
-		std::string line;
-		std::getline(is, line, '\n');
-		std::stringstream ss(line);
-		std::vector<Point> points;
-		Point point{};
-		while (ss >> point.x >> point.y >> point.color)
-		{
-			points.push_back(point);
-		}
-		(*m_stream) << points;
+		(*m_stream) << ReadPointsFromBuffer<true>();
 		boost::asio::async_read_until(m_pipe, m_buffer, '\n', m_readHandler);
 	};
 	
@@ -33,6 +24,23 @@ SlurmTask::SlurmTask(IOutputStream* stream, const std::string& pathToMath, boost
 			std::ostream_iterator<int>(oss, " "));
 		oss << arguments.back();
 	}
-	m_pathToBin = pathToMath + " " + oss.str();
-	boost::trim(m_pathToBin);
+	m_runBinCommand = pathToMath + " " + oss.str();
+	boost::trim(m_runBinCommand);
+}
+
+cluster::PointBatch SlurmTask::Suspend()
+{
+	cmd::log << "Suspend: " << SuspendProcess(m_process) << std::endl;
+	return ReadPointsFromBuffer();
+}
+
+void SlurmTask::Resume()
+{
+	cmd::log << "Resume: " << ResumeProcess(m_process) << std::endl;
+}
+
+SlurmTask::~SlurmTask()
+{
+    m_process.terminate();
+	m_stream->CloseStream();
 }

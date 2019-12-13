@@ -33,9 +33,19 @@ add_custom_command(
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR} ${Boost_INCLUDE_DIR})
 
+if (WIN32)
+	message(STATUS "Using Windows native sources")
+	set(NATIVE_SOURCES ${PROJECT_SOURCE_DIR}/src/native/windows/*.cpp)
+else()
+	message(STATUS "Using Posix native sources")
+	set(NATIVE_SOURCES ${PROJECT_SOURCE_DIR}/src/native/posix/*.cpp)
+endif()
+
 file(GLOB sources 
-    ${PROJECT_SOURCE_DIR}/src/*.cpp
-		${PROJECT_SOURCE_DIR}/src/*.h)
+  ${PROJECT_SOURCE_DIR}/src/*.cpp
+	${PROJECT_SOURCE_DIR}/src/*.h
+	${NATIVE_SOURCES}
+)
 
 add_executable(cluster ${sources}
 	${hw_proto}

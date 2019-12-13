@@ -1,5 +1,4 @@
 #include "ControlServiceImpl.h"
-#include "PointConverter.h"
 #include "Logger.h"
 
 void ControlServiceImpl::SetTaskManager(ITaskManager* taskManager)
@@ -8,18 +7,18 @@ void ControlServiceImpl::SetTaskManager(ITaskManager* taskManager)
 }
 
 grpc::Status ControlServiceImpl::SuspendTask(grpc::ServerContext* context, const cluster::Empty* request,
-	cluster::Point* response)
+	cluster::PointBatch* response)
 {
 	cmd::log << "SuspendTask called" << std::endl;
-	*response = ConvertToRpcPoint(m_taskManager->SuspendCurrentTask());
+	*response = m_taskManager->SuspendCurrentTask();
 	return grpc::Status::OK;
 }
 
 grpc::Status ControlServiceImpl::ReadCurrentPoints(grpc::ServerContext* context, const cluster::Empty* request,
-	cluster::Point* response)
+	cluster::PointBatch* response)
 {
 	cmd::log << "ReadCurrentPoints called" << std::endl;
-	*response = ConvertToRpcPoint(m_taskManager->ReadCurrentPoints());
+	*response = m_taskManager->ReadCurrentPoints();
 	return grpc::Status::OK;
 }
 
@@ -32,9 +31,9 @@ grpc::Status ControlServiceImpl::ResumeTask(grpc::ServerContext* context, const 
 }
 
 grpc::Status ControlServiceImpl::TerminateTask(grpc::ServerContext* context, const cluster::Empty* request,
-	cluster::Point* response)
+	cluster::PointBatch* response)
 {
 	cmd::log << "TerminateTask called" << std::endl;
-	*response = ConvertToRpcPoint(m_taskManager->TerminateCurrentTask());
+	*response = m_taskManager->TerminateCurrentTask();
 	return grpc::Status::OK;
 }

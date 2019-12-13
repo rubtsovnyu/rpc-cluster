@@ -7,13 +7,13 @@ class ControlServiceImpl : public cluster::ControlService::Service
 	// StartTask must be unimplemented
 public:
 	void SetTaskManager(ITaskManager* taskManager);
-	grpc::Status SuspendTask(grpc::ServerContext* context, const cluster::Empty* request, cluster::Point* response)
+	grpc::Status SuspendTask(grpc::ServerContext* context, const cluster::Empty* request, cluster::PointBatch* response)
 		override;
 	grpc::Status ReadCurrentPoints(grpc::ServerContext* context, const cluster::Empty* request,
-		cluster::Point* response) override;
+		cluster::PointBatch* response) override;
 	grpc::Status ResumeTask(grpc::ServerContext* context, const cluster::Empty* request, cluster::Empty* response)
 		override;
-	grpc::Status TerminateTask(grpc::ServerContext* context, const cluster::Empty* request, cluster::Point* response)
+	grpc::Status TerminateTask(grpc::ServerContext* context, const cluster::Empty* request, cluster::PointBatch* response)
 		override;
 	virtual ~ControlServiceImpl() = default;
 private:

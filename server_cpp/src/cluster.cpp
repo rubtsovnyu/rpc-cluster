@@ -1,5 +1,4 @@
 #include "cluster.grpc.pb.h"
-#include "StubTaskManager.h"
 #include "RpcServer.h"
 #include "SlurmTaskManager.h"
 

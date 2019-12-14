@@ -170,7 +170,8 @@ void lbm(bool statusPrint, float st) {
                 if (statusPrint) {
                     int c = abs((int) (v / st) - 1);
                     if (c > 1023) c = 1023;
-                    printf(" %d %d %d", j, lengthY - i, (bound[j][i] == 1) ? 0 : color[c]);
+                    //printf(" %d %d %d", j, lengthY - i, (bound[j][i] == 1) ? 0 : color[c]);
+                    printf(" %d %d %f", j, lengthY - i, (bound[j][i] == 1) ? 0 : v);
                     //printf(" %d %d %s",j,i,(bound[j][i] == 1) ? "0 0 0": color[c].c_str());
                     //printf(" %f % 4d", v,c);
                 }

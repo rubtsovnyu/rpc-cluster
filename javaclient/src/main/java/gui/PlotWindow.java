@@ -11,6 +11,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.slf4j.Logger;
@@ -84,20 +85,20 @@ public class PlotWindow {
         JFreeChart chart = ChartFactory.createScatterPlot(functionName, "x", "y(x)", dataset);
         XYPlot chartPlot = (XYPlot) chart.getPlot();
 
-//        final var oldRenderer = chartPlot.getRenderer();
-//        final var toolTipGenerator = oldRenderer.getDefaultToolTipGenerator();
-//        final var urlGenerator = oldRenderer.getURLGenerator();
-//
-//        final var renderer = new XYLineAndShapeRenderer(false, true) {
-//            @Override
-//            public Paint getItemPaint(int row, int column) {
-//                return new Color(currentData.getColors().get(column));
-//            }
-//        };
-//        renderer.setDefaultToolTipGenerator(toolTipGenerator);
-//        renderer.setURLGenerator(urlGenerator);
-//
-//        chartPlot.setRenderer(renderer);
+        final var oldRenderer = chartPlot.getRenderer();
+        final var toolTipGenerator = oldRenderer.getDefaultToolTipGenerator();
+        final var urlGenerator = oldRenderer.getURLGenerator();
+
+        final var renderer = new XYLineAndShapeRenderer(false, true) {
+            @Override
+            public Paint getItemPaint(int row, int column) {
+                return new Color(currentData.getColors().get(column));
+            }
+        };
+        renderer.setDefaultToolTipGenerator(toolTipGenerator);
+        renderer.setURLGenerator(urlGenerator);
+
+        chartPlot.setRenderer(renderer);
 
         ChartPanel chartPanel = new ChartPanel(chart);
 
@@ -334,7 +335,7 @@ public class PlotWindow {
         List<Integer> colors = new ArrayList<>(xySeries.getItemCount());
         pointBatch.getPointList().forEach(point -> {
             xySeries.add(point.getX(), point.getY());
-//            colors.add(point.getZ());
+            colors.add((int) point.getZ());
         });
         return new DataWrapper(xySeries, colors);
     }

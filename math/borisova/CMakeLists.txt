@@ -1,6 +1,2 @@
-cmake_minimum_required(VERSION 3.15)
-project(LBM)
-
-set(CMAKE_CXX_STANDARD 14)
-
-add_executable(LBM main.cpp)
+get_filename_component(target_name ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+add_executable(${target_name} main.cpp)

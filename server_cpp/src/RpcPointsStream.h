@@ -4,7 +4,6 @@
 #include <queue>
 #include <atomic>
 #include <condition_variable>
-#include "Point.h"
 
 class RpcPointsStream : public IOutputStream
 {
@@ -20,5 +19,6 @@ private:
 	std::queue<cluster::PointBatch> m_buffer;
 	std::atomic_bool m_isClosed;
 	std::condition_variable m_event;
+	std::mutex m_queueSync;
 };
 

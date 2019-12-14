@@ -36,7 +36,10 @@ void StartTaskCall::Proceed()
 		cmd::log << "StartTask's stream is closed" << std::endl;
 		return;
 	}
-	m_pointsStream.WaitIfEmpty();
-	m_responder.Write(m_pointsStream.Pop(), this);
-	cmd::log << "StartTask's data is transmitted" << std::endl;
+	std::thread([this]()
+	{
+        m_pointsStream.WaitIfEmpty();
+        m_responder.Write(m_pointsStream.Pop(), this);
+        cmd::log << "StartTask's data is transmitted" << std::endl;
+	}).detach();
 }

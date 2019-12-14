@@ -7,6 +7,7 @@ RpcPointsStream::RpcPointsStream()
 
 IOutputStream& RpcPointsStream::operator<<(const cluster::PointBatch& value)
 {
+	std::lock_guard<std::mutex> lock(m_queueSync);
 	m_buffer.push(value);
 	m_event.notify_one();
 	return *this;
@@ -38,6 +39,7 @@ void RpcPointsStream::WaitIfEmpty()
 
 cluster::PointBatch RpcPointsStream::Pop()
 {
+	std::lock_guard<std::mutex> lock(m_queueSync);
     auto batch = m_buffer.front();
 	m_buffer.pop();
 	return batch;

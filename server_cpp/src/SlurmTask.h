@@ -15,9 +15,6 @@ public:
     template<class Callable>
     void StartAsync(Callable&& callback)
     {
-//#ifdef WIN_DEBUG
-        m_runBinCommand = "C:\\c.exe";
-//#endif
         m_process = boost::process::child(
             m_runBinCommand,
             boost::process::std_out > m_pipe

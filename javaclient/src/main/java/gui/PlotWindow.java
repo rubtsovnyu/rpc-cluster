@@ -201,6 +201,7 @@ public class PlotWindow {
     }
 
     public void readCurrentPoints() {
+        log.info("Reading current points started");
         gRPCreadCurrentPoints();
     }
 
@@ -227,6 +228,7 @@ public class PlotWindow {
     }
 
     public void resumeTask() {
+        log.info("Resuming task started");
         switchButtonState(resumeTaskBtn);
         switchButtonState(pauseTaskBtn);
 
@@ -255,6 +257,7 @@ public class PlotWindow {
     }
 
     public void pauseTask() {
+        log.info("Pausing task started");
         switchButtonState(resumeTaskBtn);
         switchButtonState(pauseTaskBtn);
 
@@ -285,6 +288,7 @@ public class PlotWindow {
     }
 
     public void stopTask() {
+        log.info("Stopping task...");
         disableAllButtons();
 
         gRPCterminateTask();

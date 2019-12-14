@@ -172,7 +172,8 @@ public class PlotOptionsWindow {
             @Override
             public void onCompleted() {
                 log.info("Task done!");
-                stopTask();
+                isCompleted.set(true);
+                disableAllButtons();
             }
         });
         log.info("Task started");

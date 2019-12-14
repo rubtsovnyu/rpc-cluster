@@ -27,7 +27,7 @@ public class PlotWindow extends AbstractAnalysis {
 
     @Override
     public void init() throws Exception {
-        chart = AWTChartComponentFactory.chart(Quality.Fastest, IChartComponentFactory.Toolkit.awt);
+        chart = AWTChartComponentFactory.chart(Quality.Advanced, IChartComponentFactory.Toolkit.awt);
     }
 
     public Chart getChart() {

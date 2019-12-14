@@ -16,6 +16,7 @@ IOutputStream& RpcPointsStream::operator<<(const cluster::PointBatch& value)
 void RpcPointsStream::CloseStream()
 {
 	m_isClosed = true;
+	m_event.notify_all();
 }
 
 bool RpcPointsStream::IsClosed() const
@@ -25,10 +26,11 @@ bool RpcPointsStream::IsClosed() const
 
 bool RpcPointsStream::Empty() const
 {
+	std::lock_guard<std::mutex> lock(m_queueSync);
 	return m_buffer.empty();
 }
 
-void RpcPointsStream::WaitIfEmpty()
+void RpcPointsStream::WaitIfEmpty() const
 {
 	if (!Empty())
 		return;

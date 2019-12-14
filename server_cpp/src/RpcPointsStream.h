@@ -13,12 +13,12 @@ public:
 	void CloseStream() override;
 	bool IsClosed() const;
 	bool Empty() const;
-	void WaitIfEmpty();
+	void WaitIfEmpty() const;
 	cluster::PointBatch Pop();
 private:
 	std::queue<cluster::PointBatch> m_buffer;
 	std::atomic_bool m_isClosed;
-	std::condition_variable m_event;
-	std::mutex m_queueSync;
+	mutable std::condition_variable m_event;
+	mutable std::mutex m_queueSync;
 };
 

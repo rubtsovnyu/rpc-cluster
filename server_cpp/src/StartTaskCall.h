@@ -8,6 +8,7 @@ public:
 	StartTaskCall(ClusterService* service,
 		grpc::ServerCompletionQueue* completionQueue, ITaskManager* taskManager);
 	void Proceed();
+	bool CheckFinish();
 private:
 	grpc::ServerContext m_context;
 	cluster::RunMessage m_request;

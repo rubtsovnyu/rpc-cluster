@@ -30,17 +30,29 @@ void StartTaskCall::Proceed()
 		cmd::log << "StartTask deleted" << std::endl;
 		return;
 	}
-	if (m_pointsStream.IsClosed() && m_pointsStream.Empty())
-	{
-		m_isFinished = true;
-		m_responder.Finish(grpc::Status::OK, this);
-		cmd::log << "StartTask's stream is closed" << std::endl;
+	if (CheckFinish())
 		return;
-	}
 	std::thread([this]()
 	{
         m_pointsStream.WaitIfEmpty();
+		if (CheckFinish())
+			return;
         m_responder.Write(m_pointsStream.Pop(), this);
         cmd::log << "StartTask's data is transmitted" << std::endl;
 	}).detach();
+}
+
+bool StartTaskCall::CheckFinish()
+{
+    if (!(m_pointsStream.IsClosed() && m_pointsStream.Empty()))
+	{
+		return false;
+	}
+	if (!m_isFinished)
+    {
+        m_isFinished = true;
+        m_responder.Finish(grpc::Status::OK, this);
+        cmd::log << "StartTask's stream is closed" << std::endl;
+    }
+    return true;
 }

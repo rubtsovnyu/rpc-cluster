@@ -1,5 +1,6 @@
 #include "StartTaskCall.h"
 #include <boost/range.hpp>
+#include <thread>
 #include "Logger.h"
 
 StartTaskCall::StartTaskCall(ClusterService* service,

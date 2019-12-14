@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
@@ -31,9 +33,11 @@ public class PlotOptionsWindow {
     private final String functionName;
     private final Iterable<Double> params;
     private final Map<Integer, List<Coord3d>> coordMap;
+    private final AtomicInteger currentSize;
+    private final AtomicBoolean isCompleted;
+    private final AtomicLong lastTimeUpdated;
 
     private ControlServiceGrpc.ControlServiceStub serviceStub;
-    private AtomicInteger currentSize;
     private JSlider chartSlider;
     private JButton readCurrentBtn;
     private JButton resumeTaskBtn;
@@ -52,6 +56,8 @@ public class PlotOptionsWindow {
         coordMap = new ConcurrentHashMap<>();
         log.info("Dataset and colorList was initialized");
         currentSize = new AtomicInteger(-1);
+        isCompleted = new AtomicBoolean(false);
+        lastTimeUpdated = new AtomicLong(System.currentTimeMillis());
         initgRPC(serverAddress, serverPort);
         SwingUtilities.invokeLater(this::initGUI);
         startTask();
@@ -64,7 +70,7 @@ public class PlotOptionsWindow {
             @Override
             public void windowClosed(WindowEvent e) {
                 super.windowClosed(e);
-                gRPCterminateTask();
+                stopTask();
             }
         });
         plotWindow = new PlotWindow();
@@ -81,6 +87,10 @@ public class PlotOptionsWindow {
 
         chartSlider = new JSlider(JSlider.HORIZONTAL, 0, 0, 0);
         chartSlider.addChangeListener(e -> {
+            if (System.currentTimeMillis() - lastTimeUpdated.get() < 16) {
+                return;
+            }
+            lastTimeUpdated.set(System.currentTimeMillis());
             JSlider jSlider = (JSlider) e.getSource();
             final var currentZoomVal = jSlider.getValue();
             try {
@@ -155,7 +165,6 @@ public class PlotOptionsWindow {
             @Override
             public void onError(Throwable throwable) {
                 log.error("gRPC error on main stream: {}", throwable.getMessage(), throwable);
-                disableAllButtons();
                 plotManagerFrame.dispose();
                 OptionsWindow.showErrorDialog("Ошибка сервера: " + throwable.getCause().getMessage());
             }
@@ -163,6 +172,7 @@ public class PlotOptionsWindow {
             @Override
             public void onCompleted() {
                 log.info("Task done!");
+                stopTask();
             }
         });
         log.info("Task started");
@@ -249,9 +259,11 @@ public class PlotOptionsWindow {
 
     public void stopTask() {
         log.info("Stopping task...");
-        disableAllButtons();
-
-        gRPCterminateTask();
+        if (!isCompleted.get()) {
+            isCompleted.set(true);
+            disableAllButtons();
+            gRPCterminateTask();
+        }
     }
 
     private void gRPCterminateTask() {

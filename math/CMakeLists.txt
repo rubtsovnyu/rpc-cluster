@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
-project(math)
-
 macro(SUBDIRLIST result curdir)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
   set(dirlist "")

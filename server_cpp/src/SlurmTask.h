@@ -1,7 +1,7 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <boost/process.hpp>
-#include <charconv>
+#include "FromChars.h"
 #include "IOutputStream.h"
 #include "ITaskManager.h"
 #include "Logger.h"
@@ -69,10 +69,6 @@ private:
         }
         else
         {
-            constexpr auto IsError = [](std::errc e)
-            {
-                return static_cast<int>(e) != 0;
-            };
             auto stringBegin = reinterpret_cast<const char*>(m_buffer.data().data());
             while(std::isspace(*stringBegin))
             {
@@ -82,13 +78,13 @@ private:
             for (;;)
             {
                 auto convertResult = std::from_chars(stringBegin, stringEnd, point.x);
-                if (IsError(convertResult.ec))
+                if (convertResult.ec != std::errc())
                     break;
                 convertResult = std::from_chars(convertResult.ptr, stringEnd, point.y);
-                if (IsError(convertResult.ec))
+                if (convertResult.ec != std::errc())
                     break;
                 convertResult = std::from_chars(convertResult.ptr, stringEnd, point.z);
-                if (IsError(convertResult.ec))
+                if (convertResult.ec != std::errc())
                     break;
                 *points.add_point() = point;
             }

@@ -231,12 +231,12 @@ public class PlotOptionsWindow {
     }
 
     public void pauseTask() {
-//        log.info("Pausing task started");
-//        switchButtonState(resumeTaskBtn);
-//        switchButtonState(pauseTaskBtn);
-//
-//        gRPCsuspendTask();
-        EventQueue.invokeLater(this::refreshData); //For test purposes only
+        log.info("Pausing task started");
+        switchButtonState(resumeTaskBtn);
+        switchButtonState(pauseTaskBtn);
+
+        gRPCsuspendTask();
+//        EventQueue.invokeLater(this::refreshData); //For test purposes only
     }
 
     private void gRPCsuspendTask() {

@@ -7,7 +7,6 @@ import io.grpc.cluster.Empty;
 import io.grpc.cluster.PointBatch;
 import io.grpc.cluster.RunMessage;
 import io.grpc.stub.StreamObserver;
-import org.jzy3d.chart.Chart;
 import org.jzy3d.maths.Coord3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
@@ -34,7 +31,6 @@ public class PlotOptionsWindow {
     private final String functionName;
     private final Iterable<Double> params;
     private final Map<Integer, List<Coord3d>> coordMap;
-    private final ReadWriteLock lock;
 
     private ControlServiceGrpc.ControlServiceStub serviceStub;
     private AtomicInteger currentSize;
@@ -43,7 +39,6 @@ public class PlotOptionsWindow {
     private JButton resumeTaskBtn;
     private JButton pauseTaskBtn;
     private JButton stopTaskBtn;
-    private Chart chart;
     private PlotWindow plotWindow;
 
     public PlotOptionsWindow(final String functionName,
@@ -57,7 +52,6 @@ public class PlotOptionsWindow {
         coordMap = new ConcurrentHashMap<>();
         log.info("Dataset and colorList was initialized");
         currentSize = new AtomicInteger(-1);
-        lock = new ReentrantReadWriteLock();
         initgRPC(serverAddress, serverPort);
         SwingUtilities.invokeLater(this::initGUI);
         startTask();

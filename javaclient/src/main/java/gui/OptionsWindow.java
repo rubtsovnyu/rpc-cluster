@@ -20,7 +20,6 @@ public class OptionsWindow extends JFrame {
     private JScrollPane paramTableScrollPane;
     private JTextField functionNameFiled;
     private JTextField paramNumberField;
-    private PlotWindow currentPlotWindow;
 
     private int paramCount;
 
@@ -139,7 +138,7 @@ public class OptionsWindow extends JFrame {
             return;
         }
         log.info("Starting new task: {}", functionNameFiled.getText());
-        SwingUtilities.invokeLater(() -> new PlotWindow(functionNameFiled.getText(), serverAddress, serverPort, params));
+        SwingUtilities.invokeLater(() -> new PlotOptionsWindow(functionNameFiled.getText(), serverAddress, serverPort, params));
     }
 
     private boolean checkValidity() {

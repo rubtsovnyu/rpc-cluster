@@ -23,7 +23,14 @@ public:
         boost::asio::async_read_until(m_pipe, m_buffer, '\n', m_readHandler);
         std::thread([this, &callback]()
         {
-            m_ioService.run();
+            try
+            {
+                m_ioService.run();
+            }
+            catch (boost::wrapexcept<boost::system::system_error>& e)
+            {
+                cmd::log << e.what() << std::endl;
+            }
             m_process.join();
             if (m_process.exit_code() == 0)
                 callback();

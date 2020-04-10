@@ -7,8 +7,8 @@ import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 
-public class gRPCClient {
-    private static final Logger log = LoggerFactory.getLogger(gRPCClient.class);
+public class grpcClient {
+    private static final Logger log = LoggerFactory.getLogger(grpcClient.class);
 
     public static void main(String[] args) {
         JFrame.setDefaultLookAndFeelDecorated(true);

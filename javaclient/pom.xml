@@ -13,7 +13,7 @@
         <maven-compiler-plugin.target>${maven-compiler-plugin.source}</maven-compiler-plugin.target>
         <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
 
-        <protoc-jar-maven-plugin.version>3.11.4</protoc-jar-maven-plugin.version>
+        <protoc.plugin.version>3.11.4</protoc.plugin.version>
         <io.grpc.version>1.28.1</io.grpc.version>
 
         <org.slf4j.plugin.version>1.7.30</org.slf4j.plugin.version>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.github.os72</groupId>
             <artifactId>protoc-jar-maven-plugin</artifactId>
-            <version>${protoc-jar-maven-plugin.version}</version>
+            <version>${protoc.plugin.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.grpc/grpc-netty -->
         <dependency>
@@ -126,7 +126,7 @@
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>${protoc-jar-maven-plugin.version}</version>
+                <version>${protoc.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -136,7 +136,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${protoc-jar-maven-plugin.version}</protocArtifact>
+                    <protocArtifact>com.google.protobuf:protoc:${protoc.plugin.version}</protocArtifact>
                     <inputDirectories>
                         <include>../</include>
                     </inputDirectories>
